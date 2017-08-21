@@ -164,16 +164,18 @@ by PATHNAME-AS-DIRECTORY."
 
 (defun write-to-log (identifier message level)
   "Write a message at the specified level to the specified log"
-  (sb-thread:grab-mutex *file-io-mutex*)
   (let ((output-filename
 	 (with-locked-hash-table (*log-data*)
-	   (gethash identifier *log-data*))))
+	   (gethash identifier *log-data*)))
+	(output-line (format nil "~A> [~A] ~A~%~&"
+			     level (iso-time t) message)))
+    (sb-thread:grab-mutex *file-io-mutex*)
     (with-open-file (outf output-filename
 			  :direction :output
 			  :if-does-not-exist :create
 			  :if-exists :append)
-      (format outf "~A> [~A] ~A~%~&" level (iso-time t) message)))
-  (sb-thread:release-mutex *file-io-mutex*))
+      (format outf output-line))
+    (sb-thread:release-mutex *file-io-mutex*)))
 
 (defun read-from-log (identifier &optional levels)
   "Collect lines from the specified log, optionally filtered by level"
