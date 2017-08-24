@@ -214,14 +214,14 @@ by PATHNAME-AS-DIRECTORY."
 ;;; HTTP SERVER CONTROL: ------------------------------------------------------
 (defparameter *handler* nil)
 
-(defmacro start-server (&optional (handler '*handler*) (port 41111))
+(defmacro start-server (&key (handler '*handler*) (port 41111))
   "Initialize an HTTP handler"
   `(setf ,handler
 	 (clack:clackup
 	  (snooze:make-clack-app)
 	  :port ,port)))
 
-(defmacro stop-server (&optional (handler '*handler*))
+(defmacro stop-server (&key (handler '*handler*))
   "Shutdown the HTTP handler"
   `(clack:stop ,handler))
 ;;; END SERVER CONTROL --------------------------------------------------------
