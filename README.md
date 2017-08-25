@@ -2,6 +2,7 @@
 
 ### CL dependencies
 - Quicklisp
+- drakma
 - clack
 - snooze
 - chipz
