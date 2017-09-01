@@ -10,7 +10,9 @@
 	:chipz
 	:salza2)
   (:export :compress-string
-	   :decompress-string))
+	   :decompress-string
+	   :compress-octets
+	   :decompress-octets))
 
 (in-package :freezip)
 

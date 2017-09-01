@@ -109,14 +109,27 @@ by PATHNAME-AS-DIRECTORY."
   (with-open-file (outf filename :direction :output :if-exists :supersede)
     (write obj :stream outf)))
 
+(defun unzip-alist (alist)
+  "Split an ASSOC-LIST into two lists: CARs and CDRs"
+  (if (not (null alist))
+      (if (null (cdr alist))
+	  (when (not (null (car alist)))
+	    (list (list (caar alist)) (list (cdar alist))))
+	  (let ((tail-unzipped (unzip-alist (cdr alist))))
+	    (list (cons (caar alist) (car tail-unzipped))
+		  (cons (cdar alist) (cadr tail-unzipped)))))))
+
 (defun load-log-data (&optional (from-file *default-log-configuration*))
   "Load the hashtable of known log identifiers mapped to log filenames"
   (let ((log-files-hash-table (make-hash-table :test 'equal))
 	(log-names-to-filenames-alist (read-sexp-from-file from-file)))
-    (map nil #'(lambda (name filename)
-		 (setf (gethash name log-files-hash-table) filename))
-	 (mapcar #'car log-names-to-filenames-alist)
-	 (mapcar #'cdr log-names-to-filenames-alist))
+    (apply #'map
+	   (concatenate 'list
+			(list nil
+			      #'(lambda (name filename)
+				  (setf (gethash name log-files-hash-table)
+					filename)))
+			(unzip-alist log-names-to-filenames-alist)))
     log-files-hash-table))
 
 (defparameter *log-data* (load-log-data))
